@@ -14,7 +14,7 @@
     "lint": "eslint src/ --ext .ts",
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
-    "ts": "tsc --noEmit && node --no-warnings=--no-warnings=ExperimentalWarning --loader ts-node/esm"
+    "ts": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm"
   },
   "devDependencies": {
     "@types/node": "20.12.7",
@@ -30,5 +30,8 @@
   "engines": {
     "node": "^20.0.0",
     "npm": ">=10"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0"
   }
 }
