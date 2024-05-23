@@ -6,6 +6,9 @@ import { City } from '../../types/city.type.js';
 import EventEmitter from 'node:events';
 import { createReadStream } from 'node:fs';
 
+const RADIX_TEN = 10;
+const TRUE_VALUE = 'true';
+
 export class TSVFileReader extends EventEmitter implements FileReader {
   private CHUNK_SIZE = 16000;
 
@@ -38,7 +41,6 @@ export class TSVFileReader extends EventEmitter implements FileReader {
       userName,
       email,
       avatarUrl,
-      password,
       isPro
     ] = line.split('\t');
 
@@ -58,7 +60,7 @@ export class TSVFileReader extends EventEmitter implements FileReader {
       price: this.parseNumber(price),
       goods: this.parseStringToArray(goods),
       location: this.parseLocation(offerLocationLatitude, offerLocationLongitude),
-      host: this.parseHost(userName, email, avatarUrl, password, this.parseBoolean(isPro))
+      host: this.parseHost(userName, email, avatarUrl, this.parseBoolean(isPro))
     };
   }
 
@@ -67,7 +69,7 @@ export class TSVFileReader extends EventEmitter implements FileReader {
   }
 
   private parseNumber(numberString: string): number {
-    return Number.parseInt(numberString, 10);
+    return Number.parseInt(numberString, RADIX_TEN);
   }
 
   private parseRating(ratingString: string): number {
@@ -75,11 +77,11 @@ export class TSVFileReader extends EventEmitter implements FileReader {
   }
 
   private parseBoolean(booleanString: string): boolean {
-    return booleanString === 'true';
+    return booleanString === TRUE_VALUE;
   }
 
-  private parseHost(userName: string, email: string, avatarUrl: string, password: string, isPro: boolean): User {
-    return { name: userName, email, avatarUrl, password, isPro };
+  private parseHost(userName: string, email: string, avatarUrl: string, isPro: boolean): User {
+    return { name: userName, email, avatarUrl, isPro };
   }
 
   private parseCity(cityName: string, location: Location): City {
@@ -111,7 +113,10 @@ export class TSVFileReader extends EventEmitter implements FileReader {
         importedRowCount++;
 
         const parsedOffer = this.parseLineToOffer(completeRow);
-        this.emit('line', parsedOffer);
+
+        await new Promise((resolve) => {
+          this.emit('line', parsedOffer, resolve);
+        });
       }
     }
 
