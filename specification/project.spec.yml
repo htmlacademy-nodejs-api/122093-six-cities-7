@@ -1,0 +1,763 @@
+openapi: 3.0.2
+info:
+  title: API сервер для проекта "6 cities".
+  description: |-
+    * Список ресурсов и маршрутов сервера "6 cities".
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  version: 2.0.0
+tags:
+  - name: offers
+    description: Действия с предложениями.
+  - name: comments
+    description: Действия с комментариями.
+  - name: users
+    description: Действия с пользователями.
+
+
+servers:
+  - url: http://localhost:27017/six-cities
+    description: Server description
+
+paths:
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Создание нового пользователя
+      description: Регистрирует нового пользователя
+
+      requestBody:
+        description: Информация для создания нового пользователя
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createUser'
+        required: true
+
+      responses:
+        "201":
+          description: Пользователь зарегистрирован. Объект пользователя.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        "409":
+          description: Пользователь с таким email уже существует.
+
+
+  /users/login:
+    post:
+      tags:
+        - users
+      summary: Вход в закрытую часть приложения
+      description: Авторизует пользователя на основе логина и пароля
+
+      requestBody:
+        description: Указание логина и пароля для входа в систему
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: Keks
+                password:
+                  type: string
+                  example: 123456
+        required: true
+
+      responses:
+        "200":
+          description: Выполнен вход в систему.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        "400":
+          description: Ошибка при вводе логина или пароля.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationError'
+
+    get:
+      tags:
+        - users
+      summary: Проверка состояния пользователя
+      description: Возвращает информацию по авторизованному пользователю
+      security:
+        - ApiKeyAuth: []
+
+      responses:
+        "200":
+          description: Пользователь авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        "401":
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commonError'
+
+
+  /users/{userId}/avatar:
+    patch:
+      tags:
+        - users
+      summary: Загрузить изображение аватара
+      description: Загружает изображение аватара пользователя. Изображение аватара должно быть в формате `png` или `jpg`.
+      security:
+        - ApiKeyAuth: []
+
+      requestBody:
+        description: Добавление нового аватара для пользователя
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                avatarUrl:
+                  type: string
+                  example: https://15.design.htmlacademy.pro/static/host/avatar-keks.jpg
+        required: true
+
+      responses:
+        "200":
+          description: Аватар пользователя обновлен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user'
+
+        "400":
+          description: Ошибка при обновлении аватара
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commonError'
+
+
+  /users/logout:
+    delete:
+      tags:
+        - users
+      summary: Выход из закрытой части приложения
+      description: Завершает сеанс авторизации пользователя
+      security:
+        - ApiKeyAuth: []
+
+      responses:
+        "204":
+          description: Сеанс завершён
+
+
+  /offers/create:
+    post:
+      tags:
+        - offers
+      summary: Создание нового предложения
+      description: Добавление нового предложения
+      security:
+        - ApiKeyAuth: []
+
+      requestBody:
+        description: Данные для добавление нового предложения
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/offer'
+        required: true
+
+      responses:
+        "201":
+          description: Новое предложение создано
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+
+        "400":
+          description: Ошибка при создании нового предложения
+
+
+  /offers/delete/{offerId}:
+    delete:
+      tags:
+        - offers
+      summary: Удаление предложения по аренде
+      description: Удаляет предложение
+      security:
+        - ApiKeyAuth: []
+
+      parameters:
+        - in: path
+          name: offerId
+          schema:
+            type: string
+          required: true
+
+      responses:
+        "204":
+          description: Предложение удалено
+
+        "400":
+          description: Ошибка при удалении предложения
+
+
+  /offers/update/{offerId}:
+    patch:
+      tags:
+        - offers
+      summary: Редактирование предложения
+      description: Редактирует предложение
+      security:
+        - ApiKeyAuth: []
+
+      requestBody:
+        description: Данные для обновления предложения
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/offer'
+
+      responses:
+        "200":
+          description: Предложение обновлено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+
+        "400":
+          description: Ошибка при обновлении предложения
+
+
+  /offers:
+    get:
+      tags:
+        - offers
+      summary: Список предложений по аренде
+      description: Возвращает массив предложений
+
+      responses:
+        "200":
+          description: Предложения получены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/arrayOfOffers'
+
+        "400":
+          description: Ошибка при получении предложений
+
+
+  /offers/{offerId}:
+    get:
+      tags:
+        - offers
+      summary: Детальная информация по предложению
+      description: Возвращает предложение с идентификатором offerId
+
+      parameters:
+        - in: path
+          name: offerId
+          schema:
+            type: string
+          required: true
+
+      responses:
+        "200":
+          description: Предложение получено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+
+        "404":
+          description: Предложение не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commonError'
+
+
+  /offers/premium:
+    get:
+      tags:
+        - offers
+      summary: Премиальные предложения для города
+      description: предоставляет ресурс для получения списка премиальных предложений для определённого города
+
+      responses:
+        "200":
+          description: Предложения получены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/arrayOfOffers'
+
+        "400":
+          description: Ошибка при получении предложений
+
+
+  /offers/favorite:
+    get:
+      tags:
+        - offers
+      summary: Список избранных предложений
+      description: предоставляет ресурс для получения предложений, добавленных в избранное
+      security:
+        - ApiKeyAuth: []
+
+      responses:
+        "200":
+          description: Предложения получены
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/arrayOfOffers'
+
+        "401":
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commonError'
+
+
+  /offers/favorite/{offerId}/{status}:
+    post:
+      tags:
+        - offers
+      summary: Добавление и удаление предложения в/из избранного
+      description: предоставляет ресурс для добавления и удаления любого предложения в/из списка избранных предложений
+      security:
+        - ApiKeyAuth: []
+
+      parameters:
+        - in: path
+          name: offerId
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: status
+          schema:
+            type: number
+          required: true
+
+      responses:
+        "200":
+          description: Объект предложения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/offer'
+
+        "400":
+          description: Ошибка в запросе
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commonError'
+
+        "401":
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commonError'
+
+        "404":
+          description: Предложение не найдено
+
+        "409":
+          description: Предложение уже добавлено в избранное
+
+
+  /comments/{offerId}:
+    get:
+      tags:
+        - comments
+      summary: Список комментариев для предложения
+      description: предоставляет ресурс для получения списка комментариев для определённого предложения
+
+      parameters:
+        - in: path
+          name: offerId
+          schema:
+            type: string
+          required: true
+
+      responses:
+        "200":
+          description: Массив комментариев
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/comment'
+
+        "404":
+          description: Предложение не найдено
+
+
+    post:
+      tags:
+        - comments
+      summary: Добавить новый комментарий
+      description: предоставляет ресурс для добавления комментариев к определённому предложению по аренде
+      security:
+        - ApiKeyAuth: []
+
+      parameters:
+        - in: path
+          name: offerId
+          schema:
+            type: string
+          required: true
+
+      requestBody:
+        description: Объект с новым комментарием
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                comment:
+                  type: string
+                rating:
+                  type: number
+
+      responses:
+        "201":
+          description: Объект нового комментария
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/comment"
+
+        "400":
+          description: Ошибка тела запроса
+
+        "401":
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/commonError'
+
+        "404":
+          description: Предложение не найдено
+
+
+
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-Token
+
+
+  schemas:
+    createUser:
+      type: object
+
+      properties:
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+
+        name:
+          type: string
+          example: Keks
+
+        avatarUrl:
+          type: string
+          example: https://15.design.htmlacademy.pro/static/host/avatar-keks.jpg
+
+        isPro:
+          type: boolean
+          example: true
+
+        password:
+          type: string
+          example: 123456
+
+
+    user:
+      type: object
+
+      properties:
+        token:
+          type: string
+          example: T2xpdmVyLmNvbm5lckBnbWFpbC5jb22=
+
+        email:
+          type: string
+          example: keks@htmlacademy.ru
+
+        name:
+          type: string
+          example: Keks
+
+        avatarUrl:
+          type: string
+          example: https://15.design.htmlacademy.pro/static/host/avatar-keks.jpg
+
+        isPro:
+          type: boolean
+          example: true
+
+
+    offer:
+      type: object
+
+      properties:
+        id:
+          type: string
+          example: 6329c3d6a04ab1061c6425ea
+
+        title:
+          type: string
+          example: The house among olive
+
+        description:
+          type: string
+          example: A new spacious villa, one floor. All commodities, jacuzzi and beautiful scenery. Ideal for families or friends.
+
+        createdDate:
+          type: string
+          format: date-time
+          example: 2024-05-22T14:33:28.907Z
+
+        city:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Paris
+
+            location:
+              type: object
+              properties:
+                latitude:
+                  type: number
+                  example: 51.225402
+
+                longitude:
+                  type: number
+                  example: 6.776314
+
+        previewImage:
+          type: string
+          example: https://15.design.htmlacademy.pro/static/hotel/6.jpg
+
+        images:
+          type: array
+          items:
+            type: string
+          example: [https://15.design.htmlacademy.pro/static/hotel/6.jpg]
+
+        isPremium:
+          type: boolean
+          example: true
+
+        isFavorite:
+          type: boolean
+          example: false
+
+        rating:
+          type: number
+          example: 2.8
+
+        type:
+          type: string
+          example: apartment
+
+        bedrooms:
+          type: number
+          example: 5
+
+        maxAdults:
+          type: number
+          example: 2
+
+        price:
+          type: number
+          example: 280
+
+        goods:
+          type: array
+          items:
+            type: string
+          example: [Towels]
+
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+              example: 52.370540000000005
+
+            longitude:
+              type: number
+              example: 4.9099759999999995
+
+        host:
+          $ref: '#/components/schemas/user'
+
+        commentCount:
+          type: number
+          example: 2
+
+
+    arrayOfOffers:
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: string
+            example: 6329c3d6a04ab1061c6425ea
+
+          title:
+            type: string
+            example: The house among olive
+
+          createdDate:
+            type: string
+            format: date-time
+            example: 2024-05-22T14:33:28.907Z
+
+          city:
+            type: object
+            properties:
+              name:
+                type: string
+                example: Paris
+
+              location:
+                type: object
+                properties:
+                  latitude:
+                    type: number
+                    example: 51.225402
+
+                  longitude:
+                    type: number
+                    example: 6.776314
+
+          previewImage:
+            type: string
+            example: https://15.design.htmlacademy.pro/static/hotel/6.jpg
+
+          isPremium:
+            type: boolean
+            example: true
+
+          isFavorite:
+            type: boolean
+            example: false
+
+          rating:
+            type: number
+            example: 2.8
+
+          type:
+            type: string
+            example: apartment
+
+          price:
+            type: number
+            example: 280
+
+          location:
+            type: object
+            properties:
+              latitude:
+                type: number
+                example: 52.370540000000005
+
+              longitude:
+                type: number
+                example: 4.9099759999999995
+
+          commentCount:
+            type: number
+            example: 2
+
+
+    comment:
+      type: object
+      properties:
+        id:
+          type: string
+          example: b67ddfd5-b953-4a30-8c8d-bd083cd6b62a
+        date:
+          type: string
+          format: date-time
+          example: 2019-05-08T14:13:56.569Z
+        comment:
+          type: string
+          example: A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.
+        rating:
+          type: number
+          example: 5
+        host:
+          $ref: '#/components/schemas/user'
+
+
+    validationError:
+      type: object
+
+      properties:
+        errorType:
+          type: string
+          example: VALIDATION_ERROR
+
+        message:
+          type: string
+          example: 'Validation error: /six-cities/login'
+
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              property:
+                type: string
+                example: password
+
+              value:
+                type: string
+                example: p
+
+              messages:
+                type: string
+                example: password must be longer than or equal to 3 characters
+
+
+    commonError:
+      type: object
+
+      properties:
+        errorType:
+          type: string
+          example: COMMON_ERROR
+
+        message:
+          type: string
+          example: Access denied
