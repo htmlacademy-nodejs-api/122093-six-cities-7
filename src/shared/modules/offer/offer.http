@@ -1,0 +1,46 @@
+# Предложения
+## Получить список предложений
+GET http://localhost:4000/offers HTTP/1.1
+Content-Type: application/json
+
+###
+
+## Добавить новое предложение
+POST http://localhost:4000/offers/create HTTP/1.1
+Content-Type: application/json
+
+{
+  "title": "Beautiful & luxurious studio at great location",
+  "type": "apartment",
+  "price": 120,
+  "city": {
+    "name": "Amsterdam",
+    "location": {
+      "latitude": 52.35514938496378,
+      "longitude": 4.673877537499948
+    }
+  },
+  "location": {
+    "latitude": 52.35514938496378,
+    "longitude": 4.673877537499948
+  },
+  "isFavorite": false,
+  "isPremium": false,
+  "rating": 4,
+  "description": "A quiet cozy and picturesque that hides behind a a river by the unique lightness of Amsterdam.",
+  "bedrooms": 3,
+  "goods": ["Heating"],
+  "userId": "664f755f8da9c6dfc2b01d3c",
+  "images": [
+    "https://url-to-image/image.png"
+  ],
+  "maxAdults": 4
+}
+
+###
+
+## Получить детальное предложение
+GET http://localhost:4000/offers/664f755f8da9c6dfc2b01d3e HTTP/1.1
+Content-Type: application/json
+
+###
