@@ -6,7 +6,7 @@ import { DocumentType, types } from '@typegoose/typegoose';
 import { OfferEntity } from './offer.entity.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
-import { DEFAULT_OFFER_COUNT, PREMIUM_OFFER_COUNT } from './offer.constant.js';
+import { OfferCount } from './offer.constant.js';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -27,7 +27,7 @@ export class DefaultOfferService implements OfferService {
   }
 
   public async find(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel.find().limit(DEFAULT_OFFER_COUNT).populate(['userId']).exec();
+    return this.offerModel.find().limit(OfferCount.DEFAULT).populate(['userId']).exec();
   }
 
   public async deleteById(offerId: string): Promise<DocumentType<OfferEntity> | null> {
@@ -54,8 +54,8 @@ export class DefaultOfferService implements OfferService {
     return this.offerModel.find().sort({commentCount: SortType.Down}).limit(count).populate(['userId']).exec();
   }
 
-  public async findPremiumsInCity(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel.find({'isPremium': {$eq: true}}).sort({createdAt: SortType.Down}).limit(PREMIUM_OFFER_COUNT).populate(['userId']).exec();
+  public async findPremiumsInCity(_city: string): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel.find({'isPremium': {$eq: true}}).sort({createdAt: SortType.Down}).limit(OfferCount.PREMIUM).populate(['userId']).exec();
   }
 
   public async findFavorites(): Promise<DocumentType<OfferEntity>[]> {

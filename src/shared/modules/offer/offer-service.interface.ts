@@ -13,7 +13,7 @@ export interface OfferService {
   findDiscussed(count: number): Promise<DocumentType<OfferEntity>[]>;
   incCommentCount(offerId: string): Promise<DocumentType<OfferEntity> | null>;
   exists(documentId: string): Promise<boolean>;
-  findPremiumsInCity(): Promise<DocumentType<OfferEntity>[]>;
+  findPremiumsInCity(city: string): Promise<DocumentType<OfferEntity>[]>;
   findFavorites(): Promise<DocumentType<OfferEntity>[]>;
   updateFavoriteStatus(offerId: string, status: number): Promise<DocumentType<OfferEntity> | null>;
 }
