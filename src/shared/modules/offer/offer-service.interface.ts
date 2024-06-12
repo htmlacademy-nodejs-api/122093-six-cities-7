@@ -16,4 +16,5 @@ export interface OfferService {
   findPremiumsInCity(city: string): Promise<DocumentType<OfferEntity>[]>;
   findFavorites(): Promise<DocumentType<OfferEntity>[]>;
   updateFavoriteStatus(offerId: string, status: number): Promise<DocumentType<OfferEntity> | null>;
+  calculateAverageRating(offerId: string): Promise<void>;
 }

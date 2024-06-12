@@ -1,10 +1,7 @@
-import { Offer } from '../../types/offer.type.js';
-import { User } from '../../types/user.type.js';
 import { FileReader } from './file-reader.interface.js';
-import { Location } from '../../types/location.type.js';
-import { City } from '../../types/city.type.js';
 import EventEmitter from 'node:events';
 import { createReadStream } from 'node:fs';
+import { OfferGood, City, Location, User, Offer, HousingType } from '../../types/index.js';
 
 const RADIX_TEN = 10;
 const TRUE_VALUE = 'true';
@@ -54,11 +51,11 @@ export class TSVFileReader extends EventEmitter implements FileReader {
       isPremium: this.parseBoolean(isPremium),
       isFavorite: this.parseBoolean(isFavorite),
       rating: this.parseRating(rating),
-      type,
+      type: type as HousingType,
       bedrooms: this.parseNumber(bedrooms),
       maxAdults: this.parseNumber(maxAdults),
       price: this.parseNumber(price),
-      goods: this.parseStringToArray(goods),
+      goods: this.parseStringToArray(goods) as OfferGood[],
       location: this.parseLocation(offerLocationLatitude, offerLocationLongitude),
       host: this.parseHost(userName, email, avatarUrl, this.parseBoolean(isPro))
     };

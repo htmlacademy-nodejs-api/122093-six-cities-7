@@ -66,12 +66,12 @@ export class DefaultOfferService implements OfferService {
     return this.offerModel.findOneAndUpdate({_id: offerId}, {$set: {isFavorite: !!status}}, {new: true}).exec();
   }
 
-  public async calculateAverageRating() {
+  public async calculateAverageRating(offerId: string): Promise<void> {
     this.offerModel
       .aggregate([
         {
           $match: {
-            id: '_id'
+            id: offerId
           }
         },
         {
