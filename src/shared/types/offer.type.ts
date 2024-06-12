@@ -1,5 +1,7 @@
 import { City } from './city.type.js';
+import { HousingType } from './housing-type.enum.js';
 import { Location } from './location.type.js';
+import { OfferGood } from './offer-good.type.js';
 import { User } from './user.type.js';
 
 export type Offer = {
@@ -12,11 +14,11 @@ export type Offer = {
   isPremium: boolean;
   isFavorite: boolean;
   rating: number;
-  type: string;
+  type: HousingType;
   bedrooms: number;
   maxAdults: number;
   price: number;
-  goods: string[];
+  goods: OfferGood[];
   host: User;
   location: Location;
 }
