@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsEnum, IsIn, IsInt, IsMongoId, IsString, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsDateString, IsEnum, IsIn, IsInt, IsString, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { HousingType, OfferGood } from '../../../types/index.js';
 import { CreateOfferValidationMessage } from './create-offer.messages.js';
 import { Type } from 'class-transformer';
@@ -64,7 +64,6 @@ export class CreateOfferDto {
   @IsIn(GOODS, { each: true, message: CreateOfferValidationMessage.goods.invalid })
   public goods: OfferGood[];
 
-  @IsMongoId({ message: CreateOfferValidationMessage.userId.invalidId })
   public userId: string;
 
   @ValidateNested()
