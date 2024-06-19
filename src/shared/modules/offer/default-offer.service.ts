@@ -7,6 +7,7 @@ import { OfferEntity } from './offer.entity.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { OfferCount } from './offer.constant.js';
+import mongoose from 'mongoose';
 
 @injectable()
 export class DefaultOfferService implements OfferService {
@@ -54,24 +55,20 @@ export class DefaultOfferService implements OfferService {
     return this.offerModel.find().sort({commentCount: SortType.Down}).limit(count).populate(['userId']).exec();
   }
 
-  public async findPremiumsInCity(_city: string): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel.find({'isPremium': {$eq: true}}).sort({createdAt: SortType.Down}).limit(OfferCount.PREMIUM).populate(['userId']).exec();
+  public async findPremiumsInCity(city: string): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel.find({'isPremium': {$eq: true}, 'city.name': {$eq: city}}).sort({createdAt: SortType.Down}).limit(OfferCount.PREMIUM).populate(['userId']).exec();
   }
 
-  public async findFavorites(): Promise<DocumentType<OfferEntity>[]> {
-    return this.offerModel.find({'isFavorite': {$eq: true}}).populate(['userId']).exec();
-  }
-
-  public async updateFavoriteStatus(offerId: string, status: number): Promise<DocumentType<OfferEntity> | null> {
-    return this.offerModel.findOneAndUpdate({_id: offerId}, {$set: {isFavorite: !!status}}, {new: true}).exec();
+  public async findFavorites(favoriteIds: string[]): Promise<DocumentType<OfferEntity>[]> {
+    return this.offerModel.find({_id: {$in: favoriteIds}}).populate(['userId']).exec();
   }
 
   public async calculateAverageRating(offerId: string): Promise<void> {
-    this.offerModel
+    const average: DocumentType<OfferEntity>[] = await this.offerModel
       .aggregate([
         {
           $match: {
-            id: offerId
+            _id: new mongoose.Types.ObjectId(offerId)
           }
         },
         {
@@ -99,5 +96,7 @@ export class DefaultOfferService implements OfferService {
         }
       ])
       .exec();
+
+    this.updateById(offerId, {rating: average[0].rating});
   }
 }

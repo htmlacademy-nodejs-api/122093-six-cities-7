@@ -26,7 +26,7 @@ Content-Type: application/json
 
 ## Проверка авторизации пользователя
 GET http://localhost:4000/users/login HTTP/1.1
-Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
 
 ###
 
@@ -37,7 +37,7 @@ Content-Type: application/json
 ###
 
 ## Отправить изображение
-POST http://localhost:4000/users/664f755f8da9c6dfc2b01d3e/avatar HTTP/1.1
+POST http://localhost:4000/users/665b68fc1ac11a1444a23ea1/avatar HTTP/1.1
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -46,5 +46,19 @@ Content-Type: image/jpeg
 
 < C:\Users\user\Desktop/03.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+## Получить список избранных предложений
+GET http://localhost:4000/users/favorite HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
+
+###
+
+## Изменить статус избранного предложения
+POST http://localhost:4000/users/favorite/664f755f8da9c6dfc2b01d3e/1 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
 
 ###

@@ -8,6 +8,7 @@ Content-Type: application/json
 ## Добавить новое предложение
 POST http://localhost:4000/offers HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
 
 {
   "title": "Beautiful & luxurious studio at great location",
@@ -49,12 +50,14 @@ Content-Type: application/json
 
 ## Удалить предложение по идентификатору
 DELETE http://localhost:4000/offers/6666d9a4e68f98a1355492c5 HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
 
 ###
 
 ## Обновить предложение по идентификатору
 PATCH http://localhost:4000/offers/664f755f8da9c6dfc2b01d3e HTTP/1.1
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
 
 {
   "title": "Updated title",
@@ -65,19 +68,7 @@ Content-Type: application/json
 ###
 
 ## Получить список премиум предложений
-GET http://localhost:4000/offers/premium HTTP/1.1
-Content-Type: application/json
-
-###
-
-## Получить список избранных предложений
-GET http://localhost:4000/offers/favorite HTTP/1.1
-Content-Type: application/json
-
-###
-
-## Изменить статус избранного предложения
-POST http://localhost:4000/offers/favorite/664f755f8da9c6dfc2b01d3e/1 HTTP/1.1
+GET http://localhost:4000/offers/premium/Paris HTTP/1.1
 Content-Type: application/json
 
 ###
