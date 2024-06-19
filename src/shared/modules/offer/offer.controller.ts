@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { BaseController, DocumentExistsMiddleware, HttpMethod, PrivateRouteMiddleware, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
+import { BaseController, DocumentExistsMiddleware, HttpMethod, PrivateRouteMiddleware, UploadFileMiddleware, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { OfferService } from './offer-service.interface.js';
@@ -14,6 +14,8 @@ import { CommentRdo, CommentService } from '../comment/index.js';
 import { OfferCount } from './offer.constant.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UserService } from '../user/user-service.interface.js';
+import { Config, RestScheme } from '../../libs/config/index.js';
+import { UploadImageRdo } from './rdo/upload-image.rdo.js';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -21,7 +23,8 @@ export class OfferController extends BaseController {
     @inject(Component.Logger) protected readonly logger: Logger,
     @inject(Component.OfferService) private readonly offerService: OfferService,
     @inject(Component.CommentService) private readonly commentService: CommentService,
-    @inject(Component.UserService) private readonly userService: UserService
+    @inject(Component.UserService) private readonly userService: UserService,
+    @inject(Component.Config) private readonly configService: Config<RestScheme>
   ) {
     super(logger);
 
@@ -95,6 +98,16 @@ export class OfferController extends BaseController {
       method: HttpMethod.Get,
       handler: this.getDiscussed
     });
+    this.addRoute({
+      path: '/:offerId/image',
+      method: HttpMethod.Post,
+      handler: this.uploadImage,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'image'),
+      ]
+    });
   }
 
   public async index({ tokenPayload }: Request, res: Response): Promise<void> {
@@ -148,5 +161,12 @@ export class OfferController extends BaseController {
   public async getDiscussed(_req: Request, res: Response) {
     const discussedOffers = await this.offerService.findDiscussed(OfferCount.DISCUSSED);
     this.ok(res, fillDTO(OffersRdo, discussedOffers));
+  }
+
+  public async uploadImage({ params, file } : Request<ParamOfferId>, res: Response) {
+    const { offerId } = params;
+    const updateDto = { previewImage: file?.filename };
+    await this.offerService.updateById(offerId, updateDto);
+    this.created(res, fillDTO(UploadImageRdo, updateDto));
   }
 }

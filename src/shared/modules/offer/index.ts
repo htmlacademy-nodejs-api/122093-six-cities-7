@@ -7,3 +7,4 @@ export { OfferController } from './offer.controller.js';
 export { OffersRdo } from './rdo/offers.rdo.js';
 export { OfferDetailRdo } from './rdo/offer-detail.rdo.js';
 export { CreateOfferValidationMessage } from './dto/create-offer.messages.js';
+export { UploadImageRdo } from './rdo/upload-image.rdo.js';

@@ -15,6 +15,7 @@ import { LoginUserDto } from './dto/login-user.dto.js';
 import { AuthService } from '../auth/index.js';
 import { LoggedUserRdo } from './rdo/logged-user.rdo.js';
 import { OfferDetailRdo, OfferService, OffersRdo } from '../offer/index.js';
+import { UploadUserAvatarRdo } from './rdo/upload-user-avatar.rdo.js';
 
 @injectable()
 export class UserController extends BaseController {
@@ -95,11 +96,8 @@ export class UserController extends BaseController {
   public async login({ body }: LoginUserRequest, res: Response): Promise<void> {
     const user = await this.authService.verify(body);
     const token = await this.authService.authenticate(user);
-    const responseData = fillDTO(LoggedUserRdo, {
-      email: user.email,
-      token
-    });
-    this.ok(res, responseData);
+    const responseData = fillDTO(LoggedUserRdo, user);
+    this.ok(res, Object.assign(responseData, { token }));
   }
 
   public async checkAuthorization({ tokenPayload: { email }}: Request, res: Response): Promise<void> {
@@ -118,8 +116,11 @@ export class UserController extends BaseController {
 
   public async logout(): Promise<void> {}
 
-  public async uploadAvatar(req: Request, res: Response) {
-    this.created(res, { filePath: req.file?.path });
+  public async uploadAvatar({ params, file }: Request, res: Response) {
+    const { userId } = params;
+    const uploadFile = { avatarUrl: file?.filename };
+    await this.userService.updateById(userId, uploadFile);
+    this.created(res, fillDTO(UploadUserAvatarRdo, { filepath: uploadFile.avatarUrl }));
   }
 
   public async getFavorite({ tokenPayload }: Request, res: Response): Promise<void> {
