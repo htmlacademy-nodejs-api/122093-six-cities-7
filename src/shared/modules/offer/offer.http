@@ -50,15 +50,15 @@ Content-Type: application/json
 ###
 
 ## Удалить предложение по идентификатору
-DELETE http://localhost:4000/offers/6666d9a4e68f98a1355492c5 HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
+DELETE http://localhost:4000/offers/664f755f8da9c6dfc2b01d3e HTTP/1.1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE5MjU5MzA0LCJleHAiOjE3MTk0MzIxMDR9.TWJ3cTCx-cSfbNk4Oyu6cj3ekUA1QvuS_YuKkIqW8-0
 
 ###
 
 ## Обновить предложение по идентификатору
 PATCH http://localhost:4000/offers/664f755f8da9c6dfc2b01d3e HTTP/1.1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE4NzA4MjA3LCJleHAiOjE3MTg4ODEwMDd9.6hMMSJ3UFBGgLsboE0ul_ZLSlBB4yXMqouLeej6FySI
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJlbWFpbCI6InRvcmFuc0BvdmVybG9vay5uZXQiLCJuYW1lIjoiSmFjayIsImlkIjoiNjY1YjY4ZmMxYWMxMWExNDQ0YTIzZWExIiwiaWF0IjoxNzE5MjU5MzA0LCJleHAiOjE3MTk0MzIxMDR9.TWJ3cTCx-cSfbNk4Oyu6cj3ekUA1QvuS_YuKkIqW8-0
 
 {
   "title": "Updated title",
