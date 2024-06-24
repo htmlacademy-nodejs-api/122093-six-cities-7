@@ -113,7 +113,7 @@ export class OfferController extends BaseController {
   public async index({ tokenPayload }: Request, res: Response): Promise<void> {
     const user = await this.userService.findByEmail(tokenPayload?.email);
     const offers = await this.offerService.find();
-    const userFavoriteOffers = offers.map((offer) => user?.favorites[offer.id] ? {...offer, isFavorite: true} : offer);
+    const userFavoriteOffers = offers.map((offer) => user?.favorites[offer.id] ? {...offer.toObject(), isFavorite: true, id: offer.id} : offer);
     const responseData = fillDTO(OffersRdo, userFavoriteOffers);
     this.ok(res, responseData);
   }
@@ -124,9 +124,14 @@ export class OfferController extends BaseController {
     this.created(res, fillDTO(OfferDetailRdo, offer));
   }
 
-  public async show({ params }: Request<ParamOfferId>, res: Response): Promise<void> {
+  public async show({ params, tokenPayload }: Request<ParamOfferId>, res: Response): Promise<void> {
+    const user = await this.userService.findByEmail(tokenPayload?.email);
     const offerDetail = await this.offerService.findById(params.offerId);
-    this.ok(res, fillDTO(OfferDetailRdo, offerDetail));
+    if (!offerDetail) {
+      throw new Error('Offer not found');
+    }
+    const userFavoriteOffers = user?.favorites[offerDetail.id] ? {...offerDetail.toObject(), isFavorite: true, id: offerDetail.id} : offerDetail;
+    this.ok(res, fillDTO(OfferDetailRdo, userFavoriteOffers));
   }
 
   public async delete({ params }: Request<ParamOfferId>, res: Response): Promise<void> {

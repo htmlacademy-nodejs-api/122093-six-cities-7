@@ -15,10 +15,13 @@ export type City = {
 };
 
 export type User = {
+  id?: string;
   name: string;
   avatarUrl: string;
   type: UserType;
   email: string;
+  password?: string;
+  token?: string;
 };
 
 export type Comment = {

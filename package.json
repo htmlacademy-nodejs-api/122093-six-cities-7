@@ -16,6 +16,10 @@
     "compile": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "ts": "tsc --noEmit && node --no-warnings=ExperimentalWarning --loader ts-node/esm",
+    "cli:help": "npm run ts ./src/main.cli.ts",
+    "cli:version": "npm run ts ./src/main.cli.ts -- --version",
+    "cli:import": "npm run ts ./src/main.cli.ts -- --import mocks/test-data.tsv",
+    "cli:generate": "npm run ts ./src/main.cli.ts -- --generate 10 ./mocks/test-data.tsv http://localhost:3123/api",
     "mock:server": "json-server ./mocks/mock-server-data.json --port 3123 --host localhost"
   },
   "devDependencies": {
