@@ -76,6 +76,26 @@ export class UserController extends BaseController {
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
       ]
     });
+    this.addRoute({
+      path: '/favorite/:offerId',
+      method: HttpMethod.Post,
+      handler: this.postFavorite,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+      ]
+    });
+    this.addRoute({
+      path: '/favorite/:offerId',
+      method: HttpMethod.Delete,
+      handler: this.deleteFavorite,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+      ]
+    });
   }
 
   public async create({ body }: CreateUserRequest, res: Response): Promise<void> {
@@ -114,7 +134,19 @@ export class UserController extends BaseController {
     this.ok(res, fillDTO(LoggedUserRdo, foundedUser));
   }
 
-  public async logout(): Promise<void> {}
+  public async logout({ tokenPayload }: Request, res: Response): Promise<void> {
+    const user = await this.userService.findByEmail(tokenPayload.email);
+
+    if (!user) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `user with email ${tokenPayload.email} not found`,
+        'UserController'
+      );
+    }
+
+    this.noContent(res, {});
+  }
 
   public async uploadAvatar({ params, file }: Request, res: Response) {
     const { userId } = params;
@@ -135,7 +167,8 @@ export class UserController extends BaseController {
     }
 
     const favoriteIds = Object.keys(user.favorites);
-    const favoriteOffers = await this.offerService.findFavorites(favoriteIds);
+    const offers = await this.offerService.findFavorites(favoriteIds);
+    const favoriteOffers = offers.map((offer) => ({...offer.toObject(), isFavorite: true, id: offer.id}));
     this.ok(res, fillDTO(OffersRdo, favoriteOffers));
   }
 
@@ -164,6 +197,52 @@ export class UserController extends BaseController {
       await this.userService.addToFavorites(tokenPayload.id, offer.id);
     }
     offer.isFavorite = !!Number(params.status);
+    this.ok(res, fillDTO(OfferDetailRdo, offer));
+  }
+
+  public async postFavorite(
+    { params, tokenPayload }: Request<Record<string, string>, Record<string, unknown>, Record<string, unknown>>,
+    res: Response
+  ): Promise<void> {
+    const user = await this.userService.findByEmail(tokenPayload.email);
+
+    if (!user) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `user with email ${tokenPayload.email} not found`,
+        'UserController'
+      );
+    }
+
+    const offer = await this.offerService.findById(params.offerId);
+    if (!offer) {
+      throw new Error('Offer not found');
+    }
+    await this.userService.addToFavorites(tokenPayload.id, offer.id);
+    offer.isFavorite = true;
+    this.ok(res, fillDTO(OfferDetailRdo, offer));
+  }
+
+  public async deleteFavorite(
+    { params, tokenPayload }: Request<Record<string, string>, Record<string, unknown>, Record<string, unknown>>,
+    res: Response
+  ): Promise<void> {
+    const user = await this.userService.findByEmail(tokenPayload.email);
+
+    if (!user) {
+      throw new HttpError(
+        StatusCodes.NOT_FOUND,
+        `user with email ${tokenPayload.email} not found`,
+        'UserController'
+      );
+    }
+
+    const offer = await this.offerService.findById(params.offerId);
+    if (!offer) {
+      throw new Error('Offer not found');
+    }
+    await this.userService.removeFromFavorites(tokenPayload.id, offer.id);
+    offer.isFavorite = false;
     this.ok(res, fillDTO(OfferDetailRdo, offer));
   }
 }

@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsDateString, IsEnum, IsIn, IsInt, IsString, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
+import { IsArray, IsBoolean, IsEnum, IsIn, IsInt, IsString, Max, MaxLength, Min, MinLength, ValidateNested } from 'class-validator';
 import { HousingType, OfferGood } from '../../../types/index.js';
 import { CreateOfferValidationMessage } from './create-offer.messages.js';
 import { Type } from 'class-transformer';
@@ -15,7 +15,6 @@ export class CreateOfferDto {
   @MaxLength(1024, { message: CreateOfferValidationMessage.description.maxLength })
   public description: string;
 
-  @IsDateString({}, { message: CreateOfferValidationMessage.createdDate.invalidFormat })
   public createdDate: Date;
 
   @ValidateNested()
@@ -33,12 +32,8 @@ export class CreateOfferDto {
   @IsBoolean({ message: CreateOfferValidationMessage.isPremium.invalidFormat })
   public isPremium: boolean;
 
-  @IsBoolean({ message: CreateOfferValidationMessage.isFavorite.invalidFormat })
   public isFavorite: boolean;
 
-  @IsInt({ message: CreateOfferValidationMessage.rating.invalidFormat })
-  @Min(1, { message: CreateOfferValidationMessage.rating.minValue })
-  @Max(5, { message: CreateOfferValidationMessage.rating.maxValue })
   public rating: number;
 
   @IsEnum(HousingType, { message: CreateOfferValidationMessage.type.invalid })
