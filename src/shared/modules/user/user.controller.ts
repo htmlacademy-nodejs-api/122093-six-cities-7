@@ -16,6 +16,7 @@ import { AuthService } from '../auth/index.js';
 import { LoggedUserRdo } from './rdo/logged-user.rdo.js';
 import { OfferDetailRdo, OfferService, OffersRdo } from '../offer/index.js';
 import { UploadUserAvatarRdo } from './rdo/upload-user-avatar.rdo.js';
+import { UserEntity } from './user.entity.js';
 
 @injectable()
 export class UserController extends BaseController {
@@ -65,16 +66,6 @@ export class UserController extends BaseController {
       method: HttpMethod.Get,
       handler: this.getFavorite,
       middlewares: [new PrivateRouteMiddleware()]
-    });
-    this.addRoute({
-      path: '/favorite/:offerId/:status',
-      method: HttpMethod.Post,
-      handler: this.updateFavoriteStatus,
-      middlewares: [
-        new PrivateRouteMiddleware(),
-        new ValidateObjectIdMiddleware('offerId'),
-        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
-      ]
     });
     this.addRoute({
       path: '/favorite/:offerId',
@@ -135,16 +126,7 @@ export class UserController extends BaseController {
   }
 
   public async logout({ tokenPayload }: Request, res: Response): Promise<void> {
-    const user = await this.userService.findByEmail(tokenPayload.email);
-
-    if (!user) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `user with email ${tokenPayload.email} not found`,
-        'UserController'
-      );
-    }
-
+    await this.userService.findByEmail(tokenPayload.email);
     this.noContent(res, {});
   }
 
@@ -156,64 +138,17 @@ export class UserController extends BaseController {
   }
 
   public async getFavorite({ tokenPayload }: Request, res: Response): Promise<void> {
-    const user = await this.userService.findByEmail(tokenPayload.email);
-
-    if (!user) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `user with email ${tokenPayload.email} not found`,
-        'UserController'
-      );
-    }
-
+    const user = await this.userService.findByEmail(tokenPayload.email) as UserEntity;
     const favoriteIds = Object.keys(user.favorites);
     const offers = await this.offerService.findFavorites(favoriteIds);
     const favoriteOffers = offers.map((offer) => ({...offer.toObject(), isFavorite: true, id: offer.id}));
     this.ok(res, fillDTO(OffersRdo, favoriteOffers));
   }
 
-  public async updateFavoriteStatus(
-    { params, tokenPayload }: Request<Record<string, string>, Record<string, unknown>, Record<string, unknown>>,
-    res: Response
-  ): Promise<void> {
-    const user = await this.userService.findByEmail(tokenPayload.email);
-
-    if (!user) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `user with email ${tokenPayload.email} not found`,
-        'UserController'
-      );
-    }
-
-    const offer = await this.offerService.findById(params.offerId);
-    if (!offer) {
-      throw new Error('Offer not found');
-    }
-    if (!Number(params.status)) {
-      await this.userService.removeFromFavorites(tokenPayload.id, offer.id);
-    }
-    if (Number(params.status)) {
-      await this.userService.addToFavorites(tokenPayload.id, offer.id);
-    }
-    offer.isFavorite = !!Number(params.status);
-    this.ok(res, fillDTO(OfferDetailRdo, offer));
-  }
-
   public async postFavorite(
     { params, tokenPayload }: Request<Record<string, string>, Record<string, unknown>, Record<string, unknown>>,
     res: Response
   ): Promise<void> {
-    const user = await this.userService.findByEmail(tokenPayload.email);
-
-    if (!user) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `user with email ${tokenPayload.email} not found`,
-        'UserController'
-      );
-    }
-
     const offer = await this.offerService.findById(params.offerId);
     if (!offer) {
       throw new Error('Offer not found');
@@ -227,16 +162,6 @@ export class UserController extends BaseController {
     { params, tokenPayload }: Request<Record<string, string>, Record<string, unknown>, Record<string, unknown>>,
     res: Response
   ): Promise<void> {
-    const user = await this.userService.findByEmail(tokenPayload.email);
-
-    if (!user) {
-      throw new HttpError(
-        StatusCodes.NOT_FOUND,
-        `user with email ${tokenPayload.email} not found`,
-        'UserController'
-      );
-    }
-
     const offer = await this.offerService.findById(params.offerId);
     if (!offer) {
       throw new Error('Offer not found');

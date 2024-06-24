@@ -4,7 +4,15 @@ import { Command } from './commands/command.interface.js';
 import { basename, dirname, extname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
+interface CommandModule {
+  [key: string]: new () => Command;
+}
 type CommandCollection = Record<string, Command>;
+
+const enum COMMAND {
+  FILE_POSTFIX = 'command',
+  DIRECTORY = 'commands'
+}
 
 export class CLIApplication {
   private commands: CommandCollection = {};
@@ -23,22 +31,19 @@ export class CLIApplication {
   }
 
   public async registerCommandsDynamically(): Promise<void> {
-    interface CommandModule {
-      [key: string]: new () => Command;
-    }
     const currentModulePath = fileURLToPath(import.meta.url);
     const currentModuleDirectory = dirname(currentModulePath);
-    const directory = join(currentModuleDirectory, 'commands');
+    const directory = join(currentModuleDirectory, COMMAND.DIRECTORY);
 
     try {
       const files = await readdir(directory);
-      const commandFiles = files.filter((file) => file.endsWith(`command${extname(file)}`));
+      const commandFiles = files.filter((file) => file.endsWith(`${COMMAND.FILE_POSTFIX}${extname(file)}`));
       for (const file of commandFiles) {
         const filePath = join(directory, file);
-        const className = `${basename(file, `.command${extname(file)}`)
+        const className = `${basename(file, `.${COMMAND.FILE_POSTFIX}${extname(file)}`)
           .split('-')
           .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-          .join('')}Command`;
+          .join('')}${COMMAND.FILE_POSTFIX}`;
         // eslint-disable-next-line node/no-unsupported-features/es-syntax
         const commandModule: CommandModule = await import(pathToFileURL(filePath).href);
         const CommandClass = commandModule[className];

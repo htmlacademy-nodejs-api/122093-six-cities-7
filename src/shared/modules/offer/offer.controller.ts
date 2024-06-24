@@ -1,5 +1,5 @@
 import { inject, injectable } from 'inversify';
-import { BaseController, DocumentExistsMiddleware, HttpMethod, PrivateRouteMiddleware, UploadFileMiddleware, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
+import { BaseController, DocumentExistsMiddleware, HttpError, HttpMethod, PrivateRouteMiddleware, UploadFileMiddleware, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../../libs/rest/index.js';
 import { Component } from '../../types/index.js';
 import { Logger } from '../../libs/logger/index.js';
 import { OfferService } from './offer-service.interface.js';
@@ -16,6 +16,7 @@ import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UserService } from '../user/user-service.interface.js';
 import { Config, RestScheme } from '../../libs/config/index.js';
 import { UploadImageRdo } from './rdo/upload-image.rdo.js';
+import { StatusCodes } from 'http-status-codes';
 
 @injectable()
 export class OfferController extends BaseController {
@@ -134,13 +135,29 @@ export class OfferController extends BaseController {
     this.ok(res, fillDTO(OfferDetailRdo, userFavoriteOffers));
   }
 
-  public async delete({ params }: Request<ParamOfferId>, res: Response): Promise<void> {
-    const offer = await this.offerService.deleteById(params.offerId);
+  public async delete({ params, tokenPayload }: Request<ParamOfferId>, res: Response): Promise<void> {
+    const offer = await this.offerService.findById(params.offerId);
+    const author = await this.userService.findById(offer?.userId.id);
+    if (author?.email !== tokenPayload.email) {
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        `${tokenPayload.email} didn't create this offer`,
+      );
+    }
+    await this.offerService.deleteById(params.offerId);
     await this.commentService.deleteByOfferId(params.offerId);
     this.noContent(res, offer);
   }
 
-  public async update({ body, params }: Request<ParamOfferId, unknown, UpdateOfferDto>, res: Response): Promise<void> {
+  public async update({ body, params, tokenPayload }: Request<ParamOfferId, unknown, UpdateOfferDto>, res: Response): Promise<void> {
+    const offer = await this.offerService.findById(params.offerId);
+    const author = await this.userService.findById(offer?.userId.id);
+    if (author?.email !== tokenPayload.email) {
+      throw new HttpError(
+        StatusCodes.BAD_REQUEST,
+        `${tokenPayload.email} didn't create this offer`,
+      );
+    }
     const updatedOffer = await this.offerService.updateById(params.offerId, body);
     this.ok(res, fillDTO(OfferDetailRdo, updatedOffer));
   }
